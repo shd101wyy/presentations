@@ -276,6 +276,147 @@ ElasticSearch 会对数据进行切分，同时每一个分片会保存多个副
 
 <!-- slide -->
 
+# Lucene
+
+Apache Lucene 是 ElasticSearch 的基石。
+Lucene 是基于 Java 编写的开源搜索库，发布于 Apache License 2 下。
+
+<!-- slide -->
+
+搜索引擎涉及到的三个任务，这也是 Lucene 帮助解决的任务：
+
+1. 索引 Indexing：为了有效率的消化和储存数据以便快速地搜索
+2. 查询 Querying：使用户可以进行搜索
+3. 排名 Ranking：根据用户的需求，展示和排序搜索结果
+
+<!-- slide -->
+
+**Indexing** 就是我们之前提到的 Inverted Indexing 反向索引，
+在建立反向索引之前，我们会对文本进行分词，过滤停顿词等。（英文文本还会有 lowercase, stemming 等操作）
+
+<!-- slide -->
+
+**Querying** 解决了如何处理用户输入的搜索，并设立某些布尔规则。
+
+<!-- slide -->
+
+**Ranking** 决定了搜索结果的排序。
+
+例如最传统的 Vector Space Model（VSM）通过比对 Document vector 和 Query vector 的 cosine similarity 来决定搜索结果里文档的排序。
+
+> Document vector 和 Query vector 可以通过 TF-IDF 算得，具体 TF-IDF 是什么大家自己去学习下哈哈
+
+除此之外还有基于概率模型的 BM25 等等用于排序的模型
+
+<!-- slide -->
+
+# Directory
+
+Directory 是 Lucene 存放 inverted indexes（反向索引）的地方。  
+它和 ElasticSearch 中的索引 Index 的概念很像。
+
+```java
+// Target path where the inverted indexes are stored on the filesystem
+Path path = Paths.get("/home/lucene/luceneidx");
+// Obtains a read-only view of the search engine via an IndexReader
+Directory directory = FSDirectory.open(path);
+// Opens a Directory on the target path
+IndexReader reader = DirectoryReader.open(directory);
+```
+
+<!-- slide -->
+
+# IndexReader
+
+你可以使用 `IndexReader` 来得到一个索引的统计信息，例如我们存了多少个文档（Document，和 ElasticSearch 中的 Document 意义完全一致），或者哪些文档被删除了。  
+如果你知道一个文档的 ID，你可以直接通过 IndexReader 得到这个文档。
+
+```java
+int ID = 123;
+Document document = reader.document(identifier);
+```
+
+<!-- slide -->
+
+# QueryParser
+
+你可以使用 QueryParser 来处理用户的搜索输入。在搜索时你需要指定文本分析的方式。在 Lucene 中，文本分析的任务是由 Analyzer API 实现的。一个 Analyzer 由 Tokenizer 和 TokenFilter 组成。当然 Lucene 自身也提供了一些内置的 Analyzer。例如：
+
+```java
+// 创建一个 query parser 给 title 这一项，并使用 WhitespaceAnalyzer
+QueryParser parser = new QueryParser("title", new WhitespaceAnalyzer());
+// 处理用户输入的搜索，并返回一个 Lucene Query
+Query query = parser.parse("+Deep +search")
+```
+
+<!-- slide -->
+
+# IndexSearcher
+
+接着你可以创建 IndexSearcher 来搜索上一步里面创建的 Query
+
+```java
+// 使用 IndexSearcher 对 query 进行搜索，返回最前面的 10 个文档
+IndexSearcher searcher = new IndexSearcher(reader);
+TopDocs hits = searcher.search(query, 10);
+
+for (int i = 0; i < hits.scoreDocs.length; i++) {
+  ScoreDoc scoreDoc = hits.scoreDocs[i];
+  Document doc = reader.document(scoreDoc.doc);
+  System.out.println(doc.get("title") + ": " + scoreDoc.score);
+}
+```
+
+<!-- slide -->
+
+# per-field analyzers
+
+和 ElasticSearch 中的 Type （Mappings）很相似
+
+```java
+Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
+CharArraySet stopWords = new CharArraySet(Arrays.asList("a", "an", "the"), true);
+// 停顿词过滤的 analyzer
+perFieldAnalyzers.put("page", new StopAnalyzer(stopWords));
+// 空格分词的 analyzer
+perFieldAnalyzers.put("title", new WhitespaceAnalyzer());
+// EnglishAnalyzer 为默认的 analyzer，当存的数据存在 page 和 title 以外的项时，会调用 EnglishAnalyzer
+Analyzer analyzer = new PerFieldAnalyzerWrapper(
+  new EnglishAnalyzer(), perFieldAnalyzers));
+```
+
+<!-- slide -->
+
+# Document
+
+如何添加 Documents（文档）:
+
+```java
+IndexWriterConfig config = new IndexWriterConfig(analyzer);
+IndexWriter writer = new IndexWriter(directory, config);
+
+Document d14s = new Document();
+d14s.add(new TextField("title", "DL for search", Field.Store.YES));
+d14s.add(new TextField("page", "Living in the information age ...", Field.Store.YES));
+
+Document rs = new Document();
+rs.add(new TextField("title", "Relevant search", Field.Store.YES));
+rs.add(new TextField("page", "Getting a search engine to behave ...", Field.Store.YES));
+
+writer.addDocument(d14s);
+writer.addDocument(rs);
+```
+
+<!-- slide -->
+
+```java
+writer.commit(); // Commits the changes
+writer.close(); // Closes the IndexWriter (releases resources)
+```
+
+<!-- slide -->
+
 # References
 
 - [终于有人把 ElasticSearch 原理讲透了](https://zhuanlan.zhihu.com/p/62892586)
+- Deep Learning for Search

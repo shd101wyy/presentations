@@ -204,6 +204,78 @@ ElasticSearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，
 
 <!-- slide -->
 
+重新以古诗为例。一首诗，有题目、作者、朝代、字数、诗内容等字段，那么首先，我们可以建立一个名叫 Poems 的索引，然后创建一个叫做 Poem 的类型，类型是通过 Mapping 来定义每个字段的类型。
+
+<!-- slide -->
+
+- 索引
+  poems
+
+<!-- slide -->
+
+- 类型
+
+```json
+"poem": {
+  "properties": {
+    "title": {
+      "type": "keyword"
+    },
+    "author": {
+      "type": "keyword"
+    },
+    "dynasty": {
+      "type": "keyword"
+    },
+    "words": {
+      "type": "integer"
+    },
+    "content": {
+      "type": "text"
+    }
+  }
+}
+```
+
+<!-- slide -->
+
+- 文档
+
+```json
+{
+  "title": "静夜思",
+  "author": "李白",
+  "dynasty": "唐",
+  "words": 20,
+  "content": "床前明月光，疑是地上霜。举头望明月，低头思故乡。"
+}
+```
+
+<!-- slide -->
+
+**keyword** 和 **text** 的区别是什么呢？  
+**keyword** 类型是不会分词的，直接根据字符串内容建立反向索引，**text** 类型在存入 ElasticSearch 的时候，会先分词，然后根据分词后的内容建立反向索引。
+
+<!-- slide -->
+
+# ElasticSearch 分布式原理
+
+<!-- slide -->
+
+ElasticSearch 会对数据进行切分，同时每一个分片会保存多个副本，保证了分布式环境下的高可用。
+
+![Screenshot from 2019-08-28 11-58-09](https://i.loli.net/2019/08/28/moLiJ3fAehxsqNR.png)
+
+<!-- slide -->
+
+![Screenshot from 2019-08-28 11-59-51](https://i.loli.net/2019/08/28/de2MxjAyPctJ7mb.png)
+
+建立索引的请求会先发送到 Master，Master 建立完索引后，将集群状态同步至 Slave。同理 Mapping 的建立也是类似的。
+
+注意，只有建立索引和类型需要经过 Master，数据的写入有一个简单的 routing 规则，可以 route 到集群中的任意节点，所以数据的写入压力是分散在整个集群的。
+
+<!-- slide -->
+
 # References
 
 - [终于有人把 ElasticSearch 原理讲透了](https://zhuanlan.zhihu.com/p/62892586)

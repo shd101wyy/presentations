@@ -159,17 +159,17 @@ Key                     Value
 
 <!-- slide -->
 
-# ElasticSearch
+# Elasticsearch
 
-ElasticSearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，通过 http 请求就能对其进行操作了。
-
-<!-- slide -->
-
-同时 ElasticSearch 还考虑了海量数据，实现了分布式，是一个可以存储海量数据的分布式搜索引擎
+Elasticsearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，通过 http 请求就能对其进行操作了。
 
 <!-- slide -->
 
-# ElasticSearch 的几个专有名词
+同时 Elasticsearch 还考虑了海量数据，实现了分布式，是一个可以存储海量数据的分布式搜索引擎
+
+<!-- slide -->
+
+# Elasticsearch 的几个专有名词
 
 - 索引 Index
 - 类型 Type
@@ -179,7 +179,7 @@ ElasticSearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，
 
 # 索引 Index
 
-这个 Index 不是我们之前提到的 Inverted Indexing 的那个 Indexing，而是 ElasticSearch 中的索引存放数据的地方。  
+这个 Index 不是我们之前提到的 Inverted Indexing 的那个 Indexing，而是 Elasticsearch 中的索引存放数据的地方。  
 类似于 MySQL 中的一个数据库 (Database)
 
 <!-- slide -->
@@ -196,7 +196,7 @@ ElasticSearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，
 
 <!-- slide -->
 
-| **ElasticSearch** | **SQL Database** |
+| **Elasticsearch** | **SQL Database** |
 | ----------------- | ---------------- |
 | 索引 Index        | 数据库 Database  |
 | 类型 Type         | 表 Table         |
@@ -254,15 +254,15 @@ ElasticSearch 基于 Lucene 进行的封装，写成了 RESTful API 的形式，
 <!-- slide -->
 
 **keyword** 和 **text** 的区别是什么呢？  
-**keyword** 类型是不会分词的，直接根据字符串内容建立反向索引，**text** 类型在存入 ElasticSearch 的时候，会先分词，然后根据分词后的内容建立反向索引。
+**keyword** 类型是不会分词的，直接根据字符串内容建立反向索引，**text** 类型在存入 Elasticsearch 的时候，会先分词，然后根据分词后的内容建立反向索引。
 
 <!-- slide -->
 
-# ElasticSearch 分布式原理
+# Elasticsearch 分布式原理
 
 <!-- slide -->
 
-ElasticSearch 会对数据进行切分，同时每一个分片会保存多个副本，保证了分布式环境下的高可用。
+Elasticsearch 会对数据进行切分，同时每一个分片会保存多个副本，保证了分布式环境下的高可用。
 
 ![Screenshot from 2019-08-28 11-58-09](https://i.loli.net/2019/08/28/moLiJ3fAehxsqNR.png)
 
@@ -278,7 +278,7 @@ ElasticSearch 会对数据进行切分，同时每一个分片会保存多个副
 
 # Lucene
 
-Apache Lucene 是 ElasticSearch 的基石。
+Apache Lucene 是 Elasticsearch 的基石。
 Lucene 是基于 Java 编写的开源搜索库，发布于 Apache License 2 下。
 
 <!-- slide -->
@@ -313,7 +313,7 @@ Lucene 是基于 Java 编写的开源搜索库，发布于 Apache License 2 下�
 # Directory
 
 Directory 是 Lucene 存放 inverted indexes（反向索引）的地方。  
-它和 ElasticSearch 中的索引 Index 的概念很像。
+它和 Elasticsearch 中的索引 Index 的概念很像。
 
 ```java
 // Target path where the inverted indexes are stored on the filesystem
@@ -328,7 +328,7 @@ IndexReader reader = DirectoryReader.open(directory);
 
 # IndexReader
 
-你可以使用 `IndexReader` 来得到一个索引的统计信息，例如我们存了多少个文档（Document，和 ElasticSearch 中的 Document 意义完全一致），或者哪些文档被删除了。  
+你可以使用 `IndexReader` 来得到一个索引的统计信息，例如我们存了多少个文档（Document，和 Elasticsearch 中的 Document 意义完全一致），或者哪些文档被删除了。  
 如果你知道一个文档的 ID，你可以直接通过 IndexReader 得到这个文档。
 
 ```java
@@ -371,7 +371,7 @@ for (int i = 0; i < hits.scoreDocs.length; i++) {
 
 # per-field analyzers
 
-和 ElasticSearch 中的 Type （Mappings）很相似
+和 Elasticsearch 中的 Type （Mappings）很相似
 
 ```java
 Map<String, Analyzer> perFieldAnalyzers = new HashMap<>();
@@ -418,5 +418,5 @@ writer.close(); // Closes the IndexWriter (releases resources)
 
 # References
 
-- [终于有人把 ElasticSearch 原理讲透了](https://zhuanlan.zhihu.com/p/62892586)
+- [终于有人把 Elasticsearch 原理讲透了](https://zhuanlan.zhihu.com/p/62892586)
 - Deep Learning for Search

@@ -243,7 +243,7 @@ This in turn requires factoring $n = p \times q$, for which there is no known po
 
 Here comes the Shor's algorithm, which is a quantum computer algorithm for integer factorization that runs in polynormial time.
 
-Traditional algorithm might take 1 million years to factor a number, will Shor's algorithm only takes 1 second.
+Traditional algorithm might take 1 million years to factor a number, while Shor's algorithm only takes 1 second.
 
 <!-- slide -->
 
